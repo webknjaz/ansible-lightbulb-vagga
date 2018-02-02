@@ -1,0 +1,29 @@
+containers:
+  ansible:
+    environ:
+      &env_vars
+      HOME: /root
+    setup:
+    - !Env
+      <<: *env_vars
+    - !Alpine v3.6
+    - !BuildDeps [libffi-dev, openssl-dev]
+    - !PipConfig
+      dependencies: true
+    - !Py3Install [ansible]
+    - !EnsureDir /root/.ansible/tmp
+    - !Text
+      /root/.ansible.cfg: |
+        [defaults]
+        retry_files_save_path = ~/.ansible/retry-files
+        forks = 10
+    volumes:
+      /root/.ansible/tmp: !Tmpfs 
+
+commands:
+  ansible: !Command
+    container: ansible
+    run: [ansible]
+  ansible-doc: !Command
+    container: ansible
+    run: [ansible-doc]
